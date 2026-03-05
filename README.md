@@ -6,7 +6,7 @@ Configurable CRC-8/16 RTL with full UVM verification (SystemVerilog, QuestaSim).
 
 ## Demo
 
-**[View verification demo](demo/index.html)** — Spec → Plan → Results in one page. Open the link in a browser (clone the repo and open `demo/index.html` locally, or enable **GitHub Pages**: Settings → Pages → Deploy from branch `main`, root).
+**[View verification demo](https://assaf-afriat.github.io/uvm-crc-8-16/demo/index.html)** — Spec → Plan → Results in one page.
 
 ---
 
@@ -31,7 +31,7 @@ Configurable CRC-8/16 RTL with full UVM verification (SystemVerilog, QuestaSim).
 | **rtl-designer** | DUT (crc_dut.sv) |
 | **verification-architect** | VERIFICATION_PLAN.md |
 | **verification-engineer** | UVM TB, 12 tests, regression |
-| **html-demo-dut** | [demo/index.html](demo/index.html) (Spec → Plan → Results) |
+| **html-demo-dut** | [demo](https://assaf-afriat.github.io/uvm-crc-8-16/demo/index.html) (Spec → Plan → Results) |
 | **Reference model** | CrcScoreboard.ref_crc(); TLM, coverage, multi-build |
 
 ---
