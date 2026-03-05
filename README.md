@@ -43,5 +43,5 @@ Configurable CRC-8/16 RTL with full UVM verification (SystemVerilog, QuestaSim).
 ├── docs/                    # REQUIREMENTS, VERIFICATION_PLAN, VERIFICATION_RESULTS_AND_SIGNOFF, RTL_NOTES
 ├── rtl/crc_dut.sv           # DUT
 ├── tb_zero_order/           # Zero-order test (Vivado)
-└── verification/            # UVM TB, run.do, run_regression.ps1, agent/env/sequences/tests
+└── verification/            # UVM TB, agent/env/sequences/tests
 ```

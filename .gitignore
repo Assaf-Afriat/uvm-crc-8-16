@@ -31,3 +31,5 @@ Thumbs.db
 *.tmp
 .commit_msg_temp
 fix-commit-message.ps1
+upload-to-github.ps1
+GITHUB_UPLOAD.md
