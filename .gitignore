@@ -30,3 +30,4 @@ Thumbs.db
 *.bak
 *.tmp
 .commit_msg_temp
+fix-commit-message.ps1
