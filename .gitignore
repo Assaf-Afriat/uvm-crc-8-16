@@ -1,0 +1,31 @@
+# Simulator
+verification/work/
+verification/transcript
+*.wdb
+*.vcd
+*.vcd.gz
+*.log
+.vsim/
+
+# Vivado / Xilinx
+.Xil/
+*.jou
+*.str
+*.cache/
+*.runs/
+*.hw
+*.ip_user_files/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors
+.idea/
+*.swp
+*.swo
+*~
+
+# Build / temp
+*.bak
+*.tmp

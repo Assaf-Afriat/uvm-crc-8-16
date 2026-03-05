@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CRC-8/16 — Verification Demo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg: #fbfbfd;
+      --bg-card: #ffffff;
+      --text: #1d1d1f;
+      --text-muted: #6e6e73;
+      --border: #d2d2d7;
+      --accent: #0071e3;
+      --accent-soft: #e8f4fd;
+      --pass: #34c759;
+      --pass-soft: #e8f8ec;
+      --flow-dot: #0071e3;
+      --shadow: 0 2px 16px rgba(0,0,0,.06);
+      --radius: 12px;
+      --font: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    }
+
+    code {
+      font-size: 0.9em;
+      background: #f5f5f7;
+      padding: 2px 6px;
+      border-radius: 4px;
+      color: var(--text);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      font-family: var(--font);
+      font-size: 17px;
+      line-height: 1.5;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: rgba(251,251,253,.92);
+      backdrop-filter: saturate(180%) blur(20px);
+      border-bottom: 1px solid var(--border);
+      padding: 12px 24px;
+    }
+    .nav-inner {
+      max-width: 980px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .nav-title { font-weight: 600; font-size: 18px; color: var(--text); }
+    .nav-links { display: flex; gap: 24px; }
+    .nav-links a {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .nav-links a:hover { color: var(--accent); }
+
+    .hero {
+      text-align: center;
+      padding: 64px 24px 80px;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .hero h1 {
+      font-size: 40px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0 0 16px;
+      color: var(--text);
+    }
+    .hero p {
+      font-size: 21px;
+      color: var(--text-muted);
+      margin: 0 0 40px;
+      line-height: 1.4;
+    }
+
+    /* Flow indicator */
+    .flow {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 48px;
+      flex-wrap: wrap;
+    }
+    .flow-step {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .flow-dot {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--flow-dot);
+      color: #fff;
+      font-weight: 600;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .flow-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-muted);
+    }
+    .flow-arrow {
+      width: 24px;
+      height: 24px;
+      color: var(--border);
+      margin: 0 4px;
+    }
+
+    .section {
+      max-width: 980px;
+      margin: 0 auto 80px;
+      padding: 0 24px;
+    }
+    .section-head {
+      margin-bottom: 32px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section-head h2 {
+      font-size: 28px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin: 0 0 8px;
+      color: var(--text);
+    }
+    .section-head .sub {
+      font-size: 15px;
+      color: var(--text-muted);
+    }
+
+    .card {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 28px 32px;
+      margin-bottom: 24px;
+      border: 1px solid rgba(0,0,0,.04);
+    }
+    .card h3 {
+      font-size: 20px;
+      font-weight: 600;
+      margin: 0 0 16px;
+      color: var(--text);
+    }
+    .card p { margin: 0 0 12px; color: var(--text); }
+    .card p:last-child { margin-bottom: 0; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 15px;
+    }
+    th, td {
+      text-align: left;
+      padding: 12px 16px;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    tr:last-child td { border-bottom: none; }
+    tr:hover td { background: rgba(0,0,0,.02); }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-pass { background: var(--pass-soft); color: var(--pass); }
+    .badge-build { background: var(--accent-soft); color: var(--accent); }
+
+    .dut-diagram {
+      max-width: 320px;
+      margin: 24px auto;
+      padding: 24px;
+      background: var(--bg);
+      border-radius: var(--radius);
+      border: 1px solid var(--border);
+    }
+    .dut-diagram svg { width: 100%; height: auto; display: block; }
+
+    .progress-row {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+    .progress-label { flex: 0 0 100px; font-size: 14px; color: var(--text); }
+    .progress-bar-wrap {
+      flex: 1;
+      height: 8px;
+      background: var(--border);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .progress-bar {
+      height: 100%;
+      background: var(--pass);
+      border-radius: 4px;
+      transition: width .5s ease;
+    }
+
+    .signoff-box {
+      background: linear-gradient(135deg, var(--pass-soft) 0%, #e8f4fd 100%);
+      border: 1px solid rgba(52,199,89,.2);
+      border-radius: var(--radius);
+      padding: 32px;
+      text-align: center;
+    }
+    .signoff-box h3 { margin: 0 0 12px; font-size: 22px; color: var(--text); }
+    .signoff-box p { margin: 0; color: var(--text-muted); font-size: 15px; }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+    @media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    footer {
+      text-align: center;
+      padding: 48px 24px;
+      color: var(--text-muted);
+      font-size: 13px;
+      border-top: 1px solid var(--border);
+    }
+  </style>
+</head>
+<body>
+  <nav class="nav">
+    <div class="nav-inner">
+      <span class="nav-title">CRC-8/16 Verification Demo</span>
+      <div class="nav-links">
+        <a href="#spec">DUT Spec</a>
+        <a href="#plan">Verification Plan</a>
+        <a href="#results">Results</a>
+      </div>
+    </div>
+  </nav>
+
+  <header class="hero">
+    <h1>CRC-8/16 DUT Verification</h1>
+    <p>Configurable polynomial, serial & parallel modes. From specification to sign-off.</p>
+    <div class="flow" aria-label="Demo flow">
+      <div class="flow-step">
+        <span class="flow-dot" aria-hidden="true">1</span>
+        <span class="flow-label">DUT Spec</span>
+      </div>
+      <svg class="flow-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      <div class="flow-step">
+        <span class="flow-dot" aria-hidden="true">2</span>
+        <span class="flow-label">Verification Plan</span>
+      </div>
+      <svg class="flow-arrow" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      <div class="flow-step">
+        <span class="flow-dot" aria-hidden="true">3</span>
+        <span class="flow-label">Verification Results</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- 1. DUT Spec -->
+  <section class="section" id="spec">
+    <div class="section-head">
+      <h2>1. DUT Specification</h2>
+      <p class="sub">Requirements & interface — configurable CRC-8/16, serial or parallel</p>
+    </div>
+
+    <div class="card">
+      <h3>Summary</h3>
+      <p>The DUT is a configurable CRC block supporting <strong>CRC-8</strong> or <strong>CRC-16</strong> with a <strong>configurable polynomial</strong>. It operates in <strong>serial</strong> mode (1 bit per cycle) or <strong>parallel</strong> mode (e.g. 8 bits per cycle). A reference model in the scoreboard computes the expected CRC; verification compares DUT output to the reference. Coverage includes multiple polynomials and serial vs parallel modes.</p>
+    </div>
+
+    <div class="card">
+      <h3>Requirements (R1–R7)</h3>
+      <table>
+        <thead><tr><th>ID</th><th>Requirement</th></tr></thead>
+        <tbody>
+          <tr><td>R1</td><td>Serial mode produces the same CRC as the reference for any input bit sequence.</td></tr>
+          <tr><td>R2</td><td>Parallel mode produces the same CRC as the reference for any input byte/word sequence.</td></tr>
+          <tr><td>R3</td><td>CRC width is 8 or 16 bits (parameter or mode).</td></tr>
+          <tr><td>R4</td><td>Polynomial is configurable; at least two presets (e.g. CRC-8, CRC-16-CCITT).</td></tr>
+          <tr><td>R5</td><td>Reset clears internal state; next computation uses configured init value.</td></tr>
+          <tr><td>R6</td><td>Init value is configurable (e.g. 0 or 0xFFFF).</td></tr>
+          <tr><td>R7</td><td>Optional final XOR (e.g. 0 or 0xFF/0xFFFF) configurable for standard compliance.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Interface (data path)</h3>
+      <table>
+        <thead><tr><th>Signal</th><th>Dir</th><th>Width</th><th>Description</th></tr></thead>
+        <tbody>
+          <tr><td><code>mode_serial</code></td><td>in</td><td>1</td><td>1 = serial (1 bit/cycle), 0 = parallel (e.g. 8 bits/cycle).</td></tr>
+          <tr><td><code>data_in</code></td><td>in</td><td>1 or 8</td><td>Input data; meaning per mode.</td></tr>
+          <tr><td><code>data_valid</code></td><td>in</td><td>1</td><td>Input valid; DUT consumes data this cycle.</td></tr>
+          <tr><td><code>start</code></td><td>in</td><td>1</td><td>Start new CRC (reload init, clear state).</td></tr>
+          <tr><td><code>crc_out</code></td><td>out</td><td>8 or 16</td><td>CRC result.</td></tr>
+          <tr><td><code>crc_valid</code></td><td>out</td><td>1</td><td>CRC result valid 1 cycle after last <code>data_valid</code>.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Block diagram</h3>
+      <div class="dut-diagram">
+        <svg viewBox="0 0 260 120" xmlns="http://www.w3.org/2000/svg">
+          <rect x="20" y="20" width="220" height="80" rx="8" fill="#f5f5f7" stroke="#d2d2d7" stroke-width="1"/>
+          <text x="130" y="48" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="12" font-weight="600" fill="#1d1d1f">CRC-8/16</text>
+          <text x="130" y="64" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#6e6e73">configurable polynomial</text>
+          <text x="130" y="80" text-anchor="middle" font-family="Inter, system-ui, sans-serif" font-size="10" fill="#6e6e73">Serial or Parallel</text>
+          <path d="M0 60 L20 60" stroke="#0071e3" stroke-width="2" fill="none"/>
+          <path d="M240 50 L260 50" stroke="#34c759" stroke-width="2" fill="none"/>
+          <path d="M240 70 L260 70" stroke="#34c759" stroke-width="2" fill="none"/>
+          <text x="8" y="64" font-size="9" fill="#6e6e73">in</text>
+          <text x="264" y="54" font-size="9" fill="#6e6e73">crc_out</text>
+          <text x="264" y="74" font-size="9" fill="#6e6e73">crc_valid</text>
+        </svg>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Verification Plan -->
+  <section class="section" id="plan">
+    <div class="section-head">
+      <h2>2. Verification Plan</h2>
+      <p class="sub">UVM testbench architecture, test list, coverage plan</p>
+    </div>
+
+    <div class="card">
+      <h3>Objectives & sign-off criteria</h3>
+      <p><strong>Objectives:</strong> Prove correct CRC for any valid input (serial/parallel) and any configured polynomial, init, and final XOR; prove reset and <code>start</code> re-initialize state; prove CRC-8 and CRC-16 per R1–R7.</p>
+      <p><strong>Sign-off:</strong> All R1–R7 have at least one passing test and documented coverage path; functional coverage on polynomial presets (0x07, 0x1021), serial/parallel, and data patterns; no open P1/P2 bugs; regression passes.</p>
+    </div>
+
+    <div class="card">
+      <h3>Test plan (from plan)</h3>
+      <table>
+        <thead><tr><th>Test name</th><th>Purpose</th><th>Req focus</th></tr></thead>
+        <tbody>
+          <tr><td>CrcSerialSmokeTest</td><td>Single-byte serial, CRC-8 poly 0x07, init 0. Sanity.</td><td>R1, R5</td></tr>
+          <tr><td>CrcParallelSmokeTest</td><td>Single-byte parallel, CRC-8 poly 0x07, init 0. Sanity.</td><td>R2, R5</td></tr>
+          <tr><td>CrcSerialMultiByteTest</td><td>Multiple bytes serial; constrained random length and data.</td><td>R1</td></tr>
+          <tr><td>CrcParallelMultiByteTest</td><td>Multiple bytes parallel; constrained random length and data.</td><td>R2</td></tr>
+          <tr><td>CrcResetStartTest</td><td>Reset and <code>start</code> during stream; verify re-init.</td><td>R5</td></tr>
+          <tr><td>CrcPolyPresetTest</td><td>At least two polynomials (0x07 and 0x1021 for CRC-16 build).</td><td>R4</td></tr>
+          <tr><td>CrcInitFinalXorTest</td><td>Non-zero init and/or non-zero final XOR.</td><td>R6, R7</td></tr>
+          <tr><td>CrcWidthTest</td><td>CRC-8 and CRC-16 width-specific tests.</td><td>R3</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Testbench architecture</h3>
+      <p><strong>Top:</strong> <code>tb_top.sv</code>, <code>tb_top_init_final_xor.sv</code>, <code>tb_top_crc16.sv</code> — clock, reset, DUT, config_db, run_test().</p>
+      <p><strong>Agent:</strong> CrcAgent (CrcDriver, CrcMonitor, CrcSequencer). <strong>TLM:</strong> Monitor analysis_port → Scoreboard + Coverage. <strong>Reference:</strong> CrcScoreboard.ref_crc() — Galois LFSR, LSB first, init/final XOR. <strong>Config:</strong> CrcConfig (width, polynomial, init, final_xor) via uvm_config_db.</p>
+    </div>
+
+    <div class="card">
+      <h3>Requirements traceability (plan)</h3>
+      <table>
+        <thead><tr><th>Req</th><th>Test(s)</th><th>Coverage</th></tr></thead>
+        <tbody>
+          <tr><td>R1</td><td>CrcSerialSmokeTest, CrcSerialMultiByteTest</td><td>Serial mode + data bins</td></tr>
+          <tr><td>R2</td><td>CrcParallelSmokeTest, CrcParallelMultiByteTest</td><td>Parallel mode + data bins</td></tr>
+          <tr><td>R3</td><td>CrcWidthTest / build</td><td>Width (8/16)</td></tr>
+          <tr><td>R4</td><td>CrcPolyPresetTest</td><td>Polynomial bins</td></tr>
+          <tr><td>R5</td><td>CrcResetStartTest, smoke tests</td><td>Reset/start scenario</td></tr>
+          <tr><td>R6</td><td>CrcInitFinalXorTest</td><td>Init bins</td></tr>
+          <tr><td>R7</td><td>CrcInitFinalXorTest</td><td>Final XOR bins</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- 3. Verification Results -->
+  <section class="section" id="results">
+    <div class="section-head">
+      <h2>3. Verification Results</h2>
+      <p class="sub">Executive summary, test results, coverage, sign-off</p>
+    </div>
+
+    <div class="card">
+      <h3>Executive summary</h3>
+      <p>Full UVM verification of the CRC-8/16 DUT is <strong>complete</strong>. All <strong>12 tests</strong> across <strong>3 DUT builds</strong> pass in regression. Requirements R1–R7 are covered by passing tests and functional coverage. The scoreboard uses a reference model matching the RTL (Galois LFSR, LSB first, configurable init/final XOR). <strong>Sign-off criteria from VERIFICATION_PLAN.md are met.</strong></p>
+    </div>
+
+    <div class="card">
+      <h3>Regression summary — 12/12 PASS</h3>
+      <table>
+        <thead><tr><th>#</th><th>Test name</th><th>Build</th><th>Purpose</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td>1</td><td>CrcSerialSmokeTest</td><td><span class="badge badge-build">main</span></td><td>Single-byte serial 0xA5</td><td><span class="badge badge-pass">PASS</span></td></tr>
+          <tr><td>2</td><td>CrcParallelSmokeTest</td><td><span class="badge badge-build">main</span></td><td>Single-byte parallel 0xA5</td><td><span class="badge badge-pass">PASS</span></td></tr>
+          <tr><td>3</td><td>CrcSerialMultiByteTest</td><td><span class="badge badge-build">main</span></td><td>16 random-length serial items</td><td><span class="badge badge-pass">PASS</span></td></tr>
+          <tr><td>4</td><td>CrcParallelMultiByteTest</td><td><span class="badge badge-build">main</span></td><td>16 random-length parallel items</td><td><span class="badge badge-pass">PASS</span></td></tr>
+          <tr><td>5</td><td>CrcResetStartTest</td><td><span class="badge badge-build">main</span></td><td>start=1 then continue</td><td><span class="badge badge-pass">PASS</span></td></tr>
+          <tr><td>6</td><td>CrcPolyPresetTest</td><td><span class="badge badge-build">main</span></td><td>CRC-8 poly 0x07</td><td><span class="badge badge-pass">PASS</span></td></tr>
+          <tr><td>7</td><td>CrcWidthTest</td><td><span class="badge badge-build">main</span></td><td>CRC-8 width on main top</td><td><span class="badge badge-pass">PASS</span></td></tr>
+          <tr><td>8</td><td>CrcFullCoverageTest</td><td><span class="badge badge-build">main</span></td><td>28 packets: smoke + multi-byte + reset/start</td><td><span class="badge badge-pass">PASS</span></td></tr>
+          <tr><td>9</td><td>CrcAllVariationsTest</td><td><span class="badge badge-build">main</span></td><td>All variations; start=1 between groups</td><td><span class="badge badge-pass">PASS</span></td></tr>
+          <tr><td>10</td><td>CrcCornerInputsTest</td><td><span class="badge badge-build">main</span></td><td>Corner data (0x00, 0xFF, etc.)</td><td><span class="badge badge-pass">PASS</span></td></tr>
+          <tr><td>11</td><td>CrcInitFinalXorTest</td><td><span class="badge badge-build">init_final_xor</span></td><td>INIT/FINAL_XOR 0xFF</td><td><span class="badge badge-pass">PASS</span></td></tr>
+          <tr><td>12</td><td>CrcWidthTestCrc16</td><td><span class="badge badge-build">CRC-16</span></td><td>Width 16, poly 0x1021</td><td><span class="badge badge-pass">PASS</span></td></tr>
+        </tbody>
+      </table>
+      <p style="margin-top:16px; font-size:14px; color: var(--text-muted);">Regression: <code>verification/run_regression.ps1</code> — All 12 tests passed.</p>
+    </div>
+
+    <div class="card">
+      <h3>Requirements traceability (results)</h3>
+      <table>
+        <thead><tr><th>Req</th><th>Description</th><th>Test(s)</th><th>Result</th></tr></thead>
+        <tbody>
+          <tr><td>R1</td><td>Serial mode matches reference</td><td>CrcSerialSmokeTest, CrcSerialMultiByteTest</td><td><span class="badge badge-pass">PASS</span></td></tr>
+          <tr><td>R2</td><td>Parallel mode matches reference</td><td>CrcParallelSmokeTest, CrcParallelMultiByteTest</td><td><span class="badge badge-pass">PASS</span></td></tr>
+          <tr><td>R3</td><td>CRC width 8 or 16</td><td>CrcWidthTest (8), CrcWidthTestCrc16 (16)</td><td><span class="badge badge-pass">PASS</span></td></tr>
+          <tr><td>R4</td><td>Polynomial configurable (0x07, 0x1021)</td><td>CrcPolyPresetTest, CrcWidthTestCrc16</td><td><span class="badge badge-pass">PASS</span></td></tr>
+          <tr><td>R5</td><td>Reset/start re-init state</td><td>CrcResetStartTest, smoke tests</td><td><span class="badge badge-pass">PASS</span></td></tr>
+          <tr><td>R6</td><td>Init configurable</td><td>CrcInitFinalXorTest</td><td><span class="badge badge-pass">PASS</span></td></tr>
+          <tr><td>R7</td><td>Final XOR configurable</td><td>CrcInitFinalXorTest</td><td><span class="badge badge-pass">PASS</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>Functional coverage — bins hit</h3>
+      <p style="margin-bottom:20px;">All defined bins are hit across the three builds and 12 tests. Target: 100% for mode, polynomial, init, final XOR; ≥90% data/length. <strong>Status: Met.</strong></p>
+      <div class="progress-row">
+        <span class="progress-label">cp_mode</span>
+        <div class="progress-bar-wrap"><div class="progress-bar" style="width:100%"></div></div>
+        <span style="font-size:13px; color: var(--pass); font-weight:600;">100%</span>
+      </div>
+      <div class="progress-row">
+        <span class="progress-label">cp_len</span>
+        <div class="progress-bar-wrap"><div class="progress-bar" style="width:100%"></div></div>
+        <span style="font-size:13px; color: var(--pass); font-weight:600;">100%</span>
+      </div>
+      <div class="progress-row">
+        <span class="progress-label">cp_poly</span>
+        <div class="progress-bar-wrap"><div class="progress-bar" style="width:100%"></div></div>
+        <span style="font-size:13px; color: var(--pass); font-weight:600;">100%</span>
+      </div>
+      <div class="progress-row">
+        <span class="progress-label">cp_init</span>
+        <div class="progress-bar-wrap"><div class="progress-bar" style="width:100%"></div></div>
+        <span style="font-size:13px; color: var(--pass); font-weight:600;">100%</span>
+      </div>
+      <div class="progress-row">
+        <span class="progress-label">cp_fx</span>
+        <div class="progress-bar-wrap"><div class="progress-bar" style="width:100%"></div></div>
+        <span style="font-size:13px; color: var(--pass); font-weight:600;">100%</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Sign-off criteria</h3>
+      <table>
+        <thead><tr><th>Criterion</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td>All R1–R7 have at least one passing test and documented coverage path</td><td><span class="badge badge-pass">Met</span></td></tr>
+          <tr><td>Functional coverage: polynomial presets (0x07, 0x1021), serial/parallel, data patterns</td><td><span class="badge badge-pass">Met</span></td></tr>
+          <tr><td>No open P1/P2 bugs; known limitations documented</td><td><span class="badge badge-pass">Met</span></td></tr>
+          <tr><td>Regression: all tests pass</td><td><span class="badge badge-pass">Met — 12/12 PASS</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="signoff-box">
+      <h3>Verification complete</h3>
+      <p>Verification of the CRC-8/16 DUT is complete. All planned tests pass, requirements R1–R7 are covered, and functional coverage targets are met. DUT: crc_dut. Environment: UVM (QuestaSim). Regression: 12 tests — all passed.</p>
+    </div>
+  </section>
+
+  <footer>
+    CRC-8/16 DUT — Verification Demo. Docs: REQUIREMENTS.md, VERIFICATION_PLAN.md, VERIFICATION_RESULTS_AND_SIGNOFF.md.
+  </footer>
+</body>
+</html>
